@@ -117,23 +117,17 @@ void printBullet(struct Tanks tbullet){
 
 
 
-            if(checkRIGHT = -1)
+            if(checkRIGHT == -1)
                 position.posx++;
 
-            if(checkLEFT = 1)
+            if(checkLEFT == 1)
                 position.posx--;
 
-            if(checkUP = 1)
+            if(checkUP == 1)
                 position.posy--;
 
-            if(checkDOWN = -1)
+            if(checkDOWN == -1)
                 position.posy++;
-
-
-
-   position.posx++;
-
-//   position.posy--;
     }
 
     mvprintw(20,60,"La posicion Y = %lf,La posicion X = %lf",position.posy,position.posx);
