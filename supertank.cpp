@@ -18,8 +18,8 @@
 #define xInicio 10
 #define yInicio 10
 
-#define N 50
-#define M 50
+//#define N 50
+//#define M 50
 #define MAX_BULLETS 100
 
 char tmp_map[fila][columna];
@@ -79,9 +79,13 @@ struct Bullets {
     double posx;
     double posy;
     double dir ;
+    int alive;
 
 };
 
+    Tanks positionInitial;
+    Bullets position = {5,5,0,0};
+void printBullet(struct Tanks tbullet);
 
 //Funciones de Curses
 void iniciar_Curses();
@@ -89,17 +93,73 @@ void finalizar_Curses();
 
 //Funciones del juego
 void Map();
-int teclas(struct Tanks *move, struct Bullets *moveBullet);
-void tank1(int y, int x, struct Bullets *pos);
+int teclas(struct Tanks *move);
+void tank1(int y, int x);
 
 int row,col;
 struct Bullets *bullet[MAX_BULLETS] = {NULL};
-void printbullet(struct Bullets *shot, struct Tanks *warCar);
+
+Tanks positionTank(struct Tanks atank){
+    return atank;
+}
+void printBullet(struct Tanks tbullet){
+//  while(bullets[i]<MAX_BULLETS){
+
+    arrow = getch();
+    if(arrow =='b'){
+       positionInitial = positionTank(tbullet);
+       position.posx = positionInitial.x;
+
+       position.posy = positionInitial.y;
+    }
+    mvprintw(position.posy,position.posx, "*");
+    if(position.posx<40 && position.posx>0 && position.posy>1 && position.posy < 25){
+
+
+
+            if(checkRIGHT = -1)
+                position.posx++;
+
+            if(checkLEFT = 1)
+                position.posx--;
+
+            if(checkUP = 1)
+                position.posy--;
+
+            if(checkDOWN = -1)
+                position.posy++;
+
+
+
+   position.posx++;
+
+//   position.posy--;
+    }
+
+    mvprintw(20,60,"La posicion Y = %lf,La posicion X = %lf",position.posy,position.posx);
+
+    mvprintw(21,60,"La posicionInicial Y = %lf,La posicionInicial X = %lf",positionInitial.y,positionInitial.x);
+//      }
+
+
+refresh();
+}
+int bulletAlive(struct Bullets *spawn, int maxbullets){
+
+    // activa una bala cada vez que le das a la flecha abajo
+    int i = 0;
+    while(spawn[i].alive == 0 && i < maxbullets && getch() == KEY_DOWN){
+    i++;
+    // // fill in the data
+     spawn[i].alive = 1;
+     }
+}
+
 
 int main() {
-    struct BlockUnbreakable blockU[N];
-    struct Block block[M];
-    struct Tanks tank;
+//    struct BlockUnbreakable blockU[N];
+//    struct Block block[M];
+    struct Tanks tank = {7,7};
 
 
     setlocale(LC_ALL,"");
@@ -108,15 +168,17 @@ int main() {
 
     getmaxyx(stdscr,row,col);
 
-    while(teclas(&tank,bullet[MAX_BULLETS]) != KEY_BREAK){
+    while(teclas(&tank) != KEY_BREAK){
         clear();
         Map();
-        tank1( (int) tank.x, (int) tank.y, bullet[MAX_BULLETS]);
-        teclas(&tank,bullet[MAX_BULLETS]);
-    //    printbullet(bullet[MAX_BULLETS],&tank);
+        tank1( (int) tank.x, (int) tank.y);
+        teclas(&tank);
+
+
+        printBullet(tank);
+
 
         usleep(20000);
-
     }
     finalizar_Curses();
     return 0;
@@ -127,6 +189,9 @@ void iniciar_Curses(){
     curs_set(0);
     keypad(stdscr, TRUE);
     halfdelay(1);
+//    cbreak();
+    nodelay(stdscr,true);
+//    noecho();
 
 }
 
@@ -135,7 +200,13 @@ void finalizar_Curses(){
     endwin();
 }
 
-int teclas(struct Tanks *move, struct Bullets *moveBullet){
+
+
+int teclas(struct Tanks *move){
+
+
+
+
 
     arrow = getch();
     if(arrow != -1)
@@ -143,32 +214,35 @@ int teclas(struct Tanks *move, struct Bullets *moveBullet){
 
     //    check_collision();
     mvprintw(row-5,0,"arrow es %i, y lastkey es %i", arrow, lastKey);
-    mvprintw(row-6,0,"ccheckRIGHT: %i, checkDOWN: %i, checkLEFT: %i, checkU: %i", checkRIGHT, checkDOWN, checkLEFT, checkUP);
+    mvprintw(row-6,0,"checkRIGHT: %i, checkDOWN: %i, checkLEFT: %i, checkUP: %i", checkRIGHT, checkDOWN, checkLEFT, checkUP);
+
     switch(arrow){
 
         case KEY_UP:
-            if(checkUP != 0){
-                (*move).y += 1;
-                if((*move).y > ((minf-1) + yInicio ))//Up limit 9
-                    (*move).y -= 1;
-
                 checkRIGHT = 0;
                 checkDOWN  = 0;
                 checkLEFT  = 0;
-            }
+
+            if(checkUP != 0){
+                (*move).y -= 1;
+                if((*move).y < minf + 1 )//((minf-1) ))//Up limit 9
+                    (*move).y += 1;
+
+                            }
             checkUP += 1;
             if(checkUP > 1)
                 checkUP -= 1;
             break;
 
         case KEY_LEFT:
-          if(checkLEFT != 0){
-                (*move).x += 1;
-                if((*move).x > ((minc-1) + xInicio ))//Left limit 9
-                    (*move).x -= 1;
                 checkRIGHT = 0;
                 checkDOWN  = 0;
                 checkUP    = 0;
+          if(checkLEFT != 0){
+                (*move).x -= 1;
+                if((*move).x < minc + 1 )//Left limit 9
+                    (*move).x += 1;
+
             }
 
             checkLEFT += 1;
@@ -177,13 +251,14 @@ int teclas(struct Tanks *move, struct Bullets *moveBullet){
             break;
 
         case KEY_DOWN:
-            if(checkDOWN != 0){
-                (*move).y -= 1;
-                if( (*move).y < ((yInicio)+ ( (-maxf)+1 )) )// Down limit -15
-                    (*move).y += 1;
+
                 checkRIGHT = 0;
                 checkLEFT  = 0;
                 checkUP    = 0;
+            if(checkDOWN != 0){
+                (*move).y += 1;
+                if( (*move).y > maxf-1 ) // Down limit -15
+                    (*move).y -= 1;
             }
 
             checkDOWN -= 1;
@@ -192,69 +267,36 @@ int teclas(struct Tanks *move, struct Bullets *moveBullet){
             break;
 
         case KEY_RIGHT:
-            if(checkRIGHT != 0){
-                (*move).x -= 1;
-                if( (*move).x < ((xInicio)+ ( (-maxc)+1 )) )// Right limit -30
-                    (*move).x += 1;
+
                 checkDOWN  = 0;
                 checkLEFT  = 0;
                 checkUP    = 0;
+
+            if(checkRIGHT != 0){
+                (*move).x += 1;
+                if( (*move).x > maxc-1 )// Right limit -30
+                    (*move).x -= 1;
             }
             checkRIGHT -= 1;
             if(checkRIGHT < -1)
                 checkRIGHT += 1;
             break;
-        case 'b':
 
-            takeTankxy();
-
-            int direction = 0;
-            int found = -1;
-            if(checkRIGHT = -1)
-                mvprintw((*move).y-1,(*move).x, "*");
-
-            if(checkLEFT = 1)
-                mvprintw((*move).y+1,(*move).x, "*");
-
-            if(checkUP = 1)
-                mvprintw((*move).y-1,(*move).x, "*");
-
-            if(checkDOWN = -1)
-                mvprintw((*move).y+1,(*move).x, "*");
-
-
-            for(int i = 0; i < MAX_BULLETS; i++)
-            {
-                if(bullet[i] == NULL)
-                {
-                    found = i;
-                    break;
-                }
-            }
-
-            if(found >= 0)
-            {
-                int i = found;
-                bullet[i] = (Bullets*) malloc(sizeof(Bullets));
-                bullet[i]->posx = (*move).x;
-                bullet[i]->posy = (*move).y;
-                bullet[i]->dir = direction;
-            }           //updateBullet((*moveBullet).y,(*moveBullet).x);
-
-
-            break;
     }
     refresh();
     return arrow;
 }
 
-void tank1(int x, int y, struct Bullets *pos) {
+void tank1(int x, int y) {
     int algo;
 
-    algo=mvprintw(yInicio - y, xInicio - x,"H");
+
+    algo=mvprintw(y, x,"H");
+
+//    algo=mvprintw(yInicio - y, xInicio - x,"H");
     if(ERR == algo){
         mvprintw(row-2,0,"This screen has %d rows and %d columns\n",row,col);
-        mvprintw(row-1,0,"errah, %i,%i no es una direccio valida\n", yInicio - y, xInicio - x);
+        mvprintw(row-1,0,"errah, %i,%i no es una direccio valida\n", y, x);
         /*
            fprintf(stderr, "errah, %i,%i no es una direccio valida\n", yInicio - y, xInicio - x);
            if((xInicio - x)<0)
@@ -262,70 +304,12 @@ void tank1(int x, int y, struct Bullets *pos) {
            if((yInicio - y)<0)
            tank1(x, y+1);*/
     }
-    mvprintw(row-1,0,"tank 1 está en, %i,%i", yInicio - y, xInicio - x);
+    mvprintw(row-1,0,"tank 1 está en, %i,%i", y, x);
     mvprintw(row-2,0,"tank 1 está en, %i,%i", y, x);
 //    mvprintw(row-3,0,"bala está en, %i,%i", pos.posy, pos.posx);
 
     refresh();
 }
-void addBullet(double x, double y, double direction){
-
-    int found = -1;
-    for(int i = 0; i < MAX_BULLETS; i++)
-    {
-        if(bullet[i] == NULL)
-        {
-            found = i;
-            break;
-        }
-    }
-
-    if(found >= 0)
-    {
-        int i = found;
-        bullet[i] = (Bullets*) malloc(sizeof(Bullets));
-        bullet[i]->posx = x;
-        bullet[i]->posy = y;
-        bullet[i]->dir = direction;
-    }
-}
-
-void removeBullet(int i){
-    if(bullet[i])
-    {
-        free(bullet[i]);
-        bullet[i] = NULL;
-    }
-}
-/*void updateBullet(struct Tanks *warCar){
-    addBullet(&warCar);
-
-}*/
-void updateBullet(struct Bullets *shot, struct Tanks *warCar){
-
-
-               mvprintw(shot->posy,shot->posx,"hey");
-                refresh();
-
-
-
-/*            if(checkUP)
-                (*shot).dir += 1;
-            if(checkDOWN)
-                (*shot).dir -= 1;
-            if(checkLEFT)
-                (*shot).dir += 1;
-            if(checkRIGHT)
-                (*shot).dir -= 1;*/
-            //            (*shot).y += 1;
-//                if((*shot).y > ((minf-1) + yInicio ))//Up limit 9
-//                    (*shot).y -= 1;
-
-
-
-
-}
-
 void Map(){
     for(int f = 0; f < fila; f++) {
         for (int c=0; c< columna; c++ ){
@@ -335,9 +319,9 @@ void Map(){
             if(map[f][c]==1)
                 printw("#");
             if(map[f][c]==2){
-//                const wchar_t* block = L"\u2588"; // caracter utf-8
-//                addwstr(block);    //necesitas ncursesw para caracteres largos tipo unicode
-                printw("X");
+                const wchar_t* block = L"\u2588"; // caracter utf-8
+                addwstr(block);    //necesitas ncursesw para caracteres largos tipo unicode
+//                printw("X");
             }
         }
         printw("\n");
@@ -345,8 +329,3 @@ void Map(){
     refresh();
 }
 
-double takeTankxy(struct tank *dir){
-
-
-    return tank->x;
-}
