@@ -52,6 +52,9 @@ char map[fila][columna] = {
     {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
     {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2}
 };
+
+int checkDirection;
+/////////////////
 int arrow;
 int checkRIGHT = 0;
 int checkLEFT = 0;
@@ -93,42 +96,63 @@ void finalizar_Curses();
 
 //Funciones del juego
 void Map();
-int teclas(struct Tanks *move);
+int teclas(struct Tanks *move, struct Tanks tbullet);
 void tank1(int y, int x);
 
 int row,col;
 struct Bullets *bullet[MAX_BULLETS] = {NULL};
 
+
+/////////////////////////////////////////////////////////////////////////// Funciones para la bala
 Tanks positionTank(struct Tanks atank){
     return atank;
 }
-void printBullet(struct Tanks tbullet){
-//  while(bullets[i]<MAX_BULLETS){
 
-    arrow = getch();
-    if(arrow =='b'){
+int direction(){
+            if(checkRIGHT == -1)
+                return 0;
+
+            if(checkLEFT == 1)
+                return 1;
+
+            if(checkUP == 1)
+                return 2;
+
+            if(checkDOWN == -1)
+                return 3;
+
+}
+void printBullet(struct Tanks tbullet){
+
+//    arrow = getch();
+/*    if(getch() =='b'){
        positionInitial = positionTank(tbullet);
        position.posx = positionInitial.x;
 
        position.posy = positionInitial.y;
-    }
+       checkDirection = direction();
+    }*/
     mvprintw(position.posy,position.posx, "*");
-    if(position.posx<40 && position.posx>0 && position.posy>1 && position.posy < 25){
+
+    mvprintw(40,70, "La direccion a la que mira es %i",checkDirection);
+    if(position.posx<40 && position.posx>1 && position.posy>1 && position.posy<25){
 
 
 
-            if(checkRIGHT == -1)
+            if(checkDirection == 0)
                 position.posx++;
 
-            if(checkLEFT == 1)
+            if(checkDirection == 1)
                 position.posx--;
 
-            if(checkUP == 1)
+            if(checkDirection == 2)
                 position.posy--;
 
-            if(checkDOWN == -1)
+            if(checkDirection == 3)
                 position.posy++;
     }
+    else
+    mvprintw(position.posy,position.posx, " ");
 
     mvprintw(20,60,"La posicion Y = %lf,La posicion X = %lf",position.posy,position.posx);
 
@@ -142,12 +166,14 @@ int bulletAlive(struct Bullets *spawn, int maxbullets){
 
     // activa una bala cada vez que le das a la flecha abajo
     int i = 0;
-    while(spawn[i].alive == 0 && i < maxbullets && getch() == KEY_DOWN){
+    if(spawn[i].alive == 0 && i < maxbullets && getch() == KEY_DOWN){
     i++;
     // // fill in the data
      spawn[i].alive = 1;
      }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 
 int main() {
@@ -162,11 +188,11 @@ int main() {
 
     getmaxyx(stdscr,row,col);
 
-    while(teclas(&tank) != KEY_BREAK){
+    while(teclas(&tank,tank) != KEY_BREAK){
         clear();
         Map();
         tank1( (int) tank.x, (int) tank.y);
-        teclas(&tank);
+        teclas(&tank,tank);
 
 
         printBullet(tank);
@@ -196,7 +222,7 @@ void finalizar_Curses(){
 
 
 
-int teclas(struct Tanks *move){
+int teclas(struct Tanks *move, struct Tanks tbullet){
 
 
 
@@ -274,6 +300,13 @@ int teclas(struct Tanks *move){
             checkRIGHT -= 1;
             if(checkRIGHT < -1)
                 checkRIGHT += 1;
+            break;
+        case 'b':
+            positionInitial = positionTank(tbullet);
+            position.posx = positionInitial.x;
+            position.posy = positionInitial.y;
+            checkDirection = direction();
+
             break;
 
     }
