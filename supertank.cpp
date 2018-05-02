@@ -15,8 +15,8 @@
 #define minc 0
 #define maxf (fila-1)
 #define maxc (columna-1)
-#define xInicio 10
-#define yInicio 10
+//#define xInicio 10
+//#define yInicio 10
 
 //#define N 50
 //#define M 50
@@ -173,7 +173,7 @@ int bulletAlive(int maxbullets){
     //    int i = 0;
     if(i < maxbullets){ //&& getch() == KEY_DOWN){ incluir esta condicion en la funcion teclas dentro de case 'b'
         // // fill in the data
-        spawn[i].alive = 1;
+        spawn[i].alive = 1;//cambiar la struct position por array y sustituir por spawn
         mvprintw(spawn[i].posy,spawn[i].posx, "*");
 
         i++;
@@ -204,7 +204,7 @@ int bulletAlive(int maxbullets){
                 checkDOWN  = 0;
                 checkLEFT  = 0;
 
-                if(checkUP != 0){
+                if(direction() == 2){
                     (*move).y -= 1;
                     if((*move).y < minf + 1 )//((minf-1) ))//Up limit 9
                         (*move).y += 1;
@@ -219,7 +219,7 @@ int bulletAlive(int maxbullets){
                 checkRIGHT = 0;
                 checkDOWN  = 0;
                 checkUP    = 0;
-                if(checkLEFT != 0){
+                if(direction() == 1){
                     (*move).x -= 1;
                     if((*move).x < minc + 1 )//Left limit 9
                         (*move).x += 1;
@@ -236,7 +236,7 @@ int bulletAlive(int maxbullets){
                 checkRIGHT = 0;
                 checkLEFT  = 0;
                 checkUP    = 0;
-                if(checkDOWN != 0){
+                if(direction() == 3){
                     (*move).y += 1;
                     if( (*move).y > maxf-1 ) // Down limit -15
                         (*move).y -= 1;
@@ -253,7 +253,7 @@ int bulletAlive(int maxbullets){
                 checkLEFT  = 0;
                 checkUP    = 0;
 
-                if(checkRIGHT != 0){
+                if(direction()==0){
                     (*move).x += 1;
                     if( (*move).x > maxc-1 )// Right limit -30
                         (*move).x -= 1;
@@ -312,9 +312,9 @@ int bulletAlive(int maxbullets){
         curs_set(0);
         keypad(stdscr, TRUE);
         halfdelay(1);
-        //    cbreak();
+    //    cbreak();
         nodelay(stdscr,true);
-        //    noecho();
+    //    noecho();
 
     }
 
