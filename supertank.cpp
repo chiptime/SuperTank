@@ -108,8 +108,7 @@ Tanks positionTank(struct Tanks atank){
 }
 
 int direction(){
-    if(checkRIGHT == -1)
-        return 0;
+
 
     if(checkLEFT == 1)
         return 1;
@@ -119,7 +118,8 @@ int direction(){
 
     if(checkDOWN == -1)
         return 3;
-
+    if(checkRIGHT == -1)
+        return 4;
 }
 struct Bullets spawn[MAX_BULLETS];
 int i = 0;
@@ -141,7 +141,7 @@ void printBullet(struct Tanks tbullet){
 
 
 
-        if(checkDirection == 0)
+        if(checkDirection == 4)
             position.posx++;
 
         if(checkDirection == 1)
@@ -167,13 +167,13 @@ void printBullet(struct Tanks tbullet){
 
     refresh();
     }
-int bulletAlive(int maxbullets){
+int bulletAlive(struct Bullets spawn[MAX_BULLETS]){
 
     // activa una bala cada vez que le das a la flecha abajo
     //    int i = 0;
-    if(i < maxbullets){ //&& getch() == KEY_DOWN){ incluir esta condicion en la funcion teclas dentro de case 'b'
+    if(i < MAX_BULLETS){ //&& getch() == KEY_DOWN){ incluir esta condicion en la funcion teclas dentro de case 'b'
         // // fill in the data
-        spawn[i].alive = 1;//cambiar la struct position por array y sustituir por spawn
+        spawn[i].alive += 1;//cambiar la struct position por array y sustituir por spawn
         mvprintw(spawn[i].posy,spawn[i].posx, "*");
 
         i++;
@@ -253,7 +253,7 @@ int bulletAlive(int maxbullets){
                 checkLEFT  = 0;
                 checkUP    = 0;
 
-                if(direction()==0){
+                if(direction() == 4){
                     (*move).x += 1;
                     if( (*move).x > maxc-1 )// Right limit -30
                         (*move).x -= 1;
@@ -268,7 +268,7 @@ int bulletAlive(int maxbullets){
                 position.posy = positionInitial.y;
                 checkDirection = direction();
 
-                bulletAlive(MAX_BULLETS);
+                bulletAlive(bullet[MAX_BULLETS]);
                 break;
 
         }
@@ -294,11 +294,12 @@ int bulletAlive(int maxbullets){
         while(teclas(&tank,tank) != KEY_BREAK){
             clear();
             Map();
+
+            printBullet(tank);
             tank1( (int) tank.x, (int) tank.y);
             teclas(&tank,tank);
 
 
-            printBullet(tank);
 
 
             usleep(20000);
@@ -367,4 +368,5 @@ int bulletAlive(int maxbullets){
         }
         refresh();
     }
+
 
