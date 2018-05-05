@@ -86,8 +86,6 @@ struct Bullets {
 
 };
 
-Tanks positionInitial;
-Bullets position = {5,5,0,0};
 void printBullet(struct Tanks tbullet);
 
 //Funciones de Curses
@@ -118,13 +116,12 @@ int direction(){
 
     if(checkDOWN == -1)
         return 3;
+
     if(checkRIGHT == -1)
         return 4;
 }
-struct Bullets spawn[MAX_BULLETS];
-int i = 0;
 
-void printBullet(struct Tanks tbullet){
+void printBullet(struct Tanks tbullet, struct Bullets *position, struct Bullets position_Bullet){
 
     //    arrow = getch();
     /*    if(getch() =='b'){
@@ -134,34 +131,34 @@ void printBullet(struct Tanks tbullet){
           position.posy = positionInitial.y;
           checkDirection = direction();
           }*/
-        mvprintw(position.posy,position.posx, "*");
+        mvprintw(position_Bullet.posy,position_Bullet.posx, "*");
 
     mvprintw(40,70, "La direccion a la que mira es %i",checkDirection);
-    if(position.posx<40 && position.posx>1 && position.posy>1 && position.posy<25){
+    if(position_Bullet.posx<40 && position_Bullet.posx>1 && position_Bullet.posy>1 && position_Bullet.posy<25){
 
 
 
         if(checkDirection == 4)
-            position.posx++;
+            position->posx++;
 
         if(checkDirection == 1)
-            position.posx--;
+            position->posx--;
 
         if(checkDirection == 2)
-            position.posy--;
+            position->posy--;
 
         if(checkDirection == 3)
-            position.posy++;
+            position->posy++;
     }
     else{
-        mvprintw(position.posy,position.posx, " ");
+        mvprintw(position_Bullet.posy,position_Bullet.posx, " ");
         //    bullet[MAX_BULLETS] = bullet[--bullet_count];
     }
 
-    mvprintw(20,60,"La posicion Y = %lf,La posicion X = %lf",position.posy,position.posx);
+    mvprintw(20,60,"La posicion Y = %lf,La posicion X = %lf",position_Bullet.posy,position_Bullet.posx);
 
-    mvprintw(30,80," spawn Y=%i,  X= %i, e I = %i",spawn[i].posy,spawn[i].posx,i );
-    mvprintw(21,60,"La posicionInicial Y = %lf,La posicionInicial X = %lf",positionInitial.y,positionInitial.x);
+//    mvprintw(30,80," spawn Y=%i,  X= %i, e I = %i",spawn[i].posy,spawn[i].posx,i );
+//    mvprintw(21,60,"La posicionInicial Y = %lf,La posicionInicial X = %lf",positionInitial.y,positionInitial.x);
     //      }
 
 
@@ -169,12 +166,15 @@ void printBullet(struct Tanks tbullet){
     }
 int bulletAlive(struct Bullets spawn[MAX_BULLETS]){
 
+
+//    struct Bullets spawn[MAX_BULLETS];
+    int i = 0;
     // activa una bala cada vez que le das a la flecha abajo
     //    int i = 0;
     if(i < MAX_BULLETS){ //&& getch() == KEY_DOWN){ incluir esta condicion en la funcion teclas dentro de case 'b'
         // // fill in the data
-        spawn[i].alive += 1;//cambiar la struct position por array y sustituir por spawn
-        mvprintw(spawn[i].posy,spawn[i].posx, "*");
+//        spawn[i].alive += 1;//cambiar la struct position por array y sustituir por spawn
+//        mvprintw(spawn[i].posy,spawn[i].posx, "*");
 
         i++;
         //     mvprintw(30,80," spawn Y=%i,  X= %i",spawn[i].posy,spawn[i].posx);
@@ -183,11 +183,7 @@ int bulletAlive(struct Bullets spawn[MAX_BULLETS]){
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
-    int teclas(struct Tanks *move, struct Tanks tbullet){
-
-
-
-
+int teclas(struct Tanks *move, struct Tanks tbullet, struct Tanks positionInitial, struct Bullets *position){
 
         arrow = getch();
         if(arrow != -1)
@@ -264,11 +260,11 @@ int bulletAlive(struct Bullets spawn[MAX_BULLETS]){
                 break;
             case 'b':
                 positionInitial = positionTank(tbullet);
-                position.posx = positionInitial.x;
-                position.posy = positionInitial.y;
+                position->posx = positionInitial.x;
+                position->posy = positionInitial.y;
                 checkDirection = direction();
 
-                bulletAlive(bullet[MAX_BULLETS]);
+//                bulletAlive(bullet[MAX_BULLETS]);
                 break;
 
         }
@@ -283,6 +279,9 @@ int bulletAlive(struct Bullets spawn[MAX_BULLETS]){
         //    struct Block block[M];
         struct Tanks tank = {7,7};
 
+        Tanks position_Initial;
+        Bullets positionb = {5,5,0,0};
+
 
         setlocale(LC_ALL,"");
         iniciar_Curses();
@@ -291,13 +290,13 @@ int bulletAlive(struct Bullets spawn[MAX_BULLETS]){
         //struct Bullets *bullet[MAX_BULLETS] = {NULL};
         getmaxyx(stdscr,row,col);
 
-        while(teclas(&tank,tank) != KEY_BREAK){
+        while(teclas(&tank,tank, position_Initial, &positionb) != KEY_BREAK){
             clear();
             Map();
 
-            printBullet(tank);
+            printBullet(tank,&positionb,positionb);
             tank1( (int) tank.x, (int) tank.y);
-            teclas(&tank,tank);
+            teclas(&tank,tank, position_Initial, &positionb);
 
 
 
@@ -333,7 +332,6 @@ int bulletAlive(struct Bullets spawn[MAX_BULLETS]){
 
         algo=mvprintw(y, x,"H");
 
-        //    algo=mvprintw(yInicio - y, xInicio - x,"H");
         if(ERR == algo){
             mvprintw(row-2,0,"This screen has %d rows and %d columns\n",row,col);
             mvprintw(row-1,0,"errah, %i,%i no es una direccio valida\n", y, x);
@@ -346,7 +344,6 @@ int bulletAlive(struct Bullets spawn[MAX_BULLETS]){
         }
         mvprintw(row-1,0,"tank 1 está en, %i,%i", y, x);
         mvprintw(row-2,0,"tank 1 está en, %i,%i", y, x);
-        //    mvprintw(row-3,0,"bala está en, %i,%i", pos.posy, pos.posx);
 
         refresh();
     }
@@ -361,7 +358,6 @@ int bulletAlive(struct Bullets spawn[MAX_BULLETS]){
                 if(map[f][c]==2){
                     const wchar_t* block = L"\u2588"; // caracter utf-8
                     addwstr(block);    //necesitas ncursesw para caracteres largos tipo unicode
-                    //                printw("X");
                 }
             }
             printw("\n");
